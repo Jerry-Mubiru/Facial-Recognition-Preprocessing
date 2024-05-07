@@ -5,39 +5,31 @@ from mpl_toolkits.mplot3d import Axes3D
 from skimage import io
 import collections
 
-# Path to the directory containing your .jpg files
+#Path to the directory containing your .jpg files
 directory = 'Refined Images'
-
-# List all files in the directory
+#Listing all files in the directory
 files = os.listdir(directory)
-
-# Filter for files ending in .jpg
+#files ending in .jpg
 jpg_files = [file for file in files if file.endswith('.jpg')]
 
-# Optionally set detector and some additional detector parameters
 face_detector = 'sfd'
 face_detector_kwargs = {
     "filter_threshold": 0.8
 }
-
 # Initializing the face alignment with 3D landmarks
 fa = face_alignment.FaceAlignment(face_alignment.LandmarksType.THREE_D, device='cpu', flip_input=True,
                                   face_detector=face_detector, face_detector_kwargs=face_detector_kwargs)
-
 # Looping over each .jpg file
 for filename in jpg_files:
     # Full path to image
     image_path = os.path.join(directory, filename)
-    
-    # Read the image
+    # Reading the image
     input_img = io.imread(image_path)
-
-    # Get landmarks
+    # Getting landmarks
     preds = fa.get_landmarks(input_img)
     if preds is None:
         print(f"No landmarks detected in {filename}.")
         continue
-
     # Extracting the last set of landmarks (assuming it's the desired face if multiple are detected)
     preds = preds[-1]
 
@@ -63,7 +55,6 @@ for filename in jpg_files:
         ax.plot(preds[pred_type.slice, 0], preds[pred_type.slice, 1], color=pred_type.color, **plot_style)
 
     ax.axis('off')
-
     # 3D-Plot
     ax = fig.add_subplot(1, 2, 2, projection='3d')
     surf = ax.scatter(preds[:, 0] * 1.2, preds[:, 1], preds[:, 2], c='cyan', alpha=1.0, edgecolor='b')
